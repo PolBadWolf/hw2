@@ -25,7 +25,7 @@
                     <outputDirectory>${project.build.directory}/../out/</outputDirectory>
                     <archive>
                         <manifest>
-                            <mainClass>org.example.test24.emu.MainClass</mainClass>
+                            <mainClass>ru.yandex.fixcolor.skillbox.hw2.MainClass</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -44,5 +44,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.dropbox.core</groupId>
+            <artifactId>dropbox-core-sdk</artifactId>
+            <version>3.1.4</version>
+        </dependency>
+    </dependencies>
 
 </project>
